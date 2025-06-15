@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Statistiques - BudgetWise{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+
+  <h1 class="mb-4 text-info">
+    Statistiques de mes Dépenses
+  </h1>
+
+  <!-- Répartition par catégorie -->
+  <h3>Répartition par Catégorie</h3>
+  {% if stats_categories %}
+    {% set max_total = stats_categories[0].total %}
+    {% for stat in stats_categories %}
+      <div class="mb-2">
+        <strong>{{ stat.categorie }}</strong> ({{ stat.nombre }} transaction{{ stat.nombre > 1 and 's' or '' }})  
+        <span class="float-end badge bg-danger">{{ "%.2f"|format(stat.total) }} €</span>
+        <div class="progress" style="height: 10px;">
+          {% set percent = max_total > 0 and (stat.total / max_total * 100) or 0 %}
+          <div class="progress-bar bg-danger" style="width: {{ percent }}%"></div>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-muted">Aucune dépense pour générer des statistiques.</p>
+  {% endif %}
+
+  <hr>
+
+  <!-- Dépenses par mois -->
+  <h3>Dépenses par Mois</h3>
+  {% if stats_mois %}
+    {% set max_total_mois = stats_mois[0].total %}
+    {% set mois_names = {
+      1: 'Janvier', 2: 'Février', 3: 'Mars', 4: 'Avril',
+      5: 'Mai', 6: 'Juin', 7: 'Juillet', 8: 'Août',
+      9: 'Septembre', 10: 'Octobre', 11: 'Novembre', 12: 'Décembre'
+    } %}
+    {% for stat in stats_mois %}
+      <div class="mb-2">
+        <strong>{{ mois_names[stat.mois] }} {{ stat.annee }}</strong>
+        <span class="float-end badge bg-warning text-dark">{{ "%.2f"|format(stat.total) }} €</span>
+        <div class="progress" style="height: 10px;">
+          {% set percent = max_total_mois > 0 and (stat.total / max_total_mois * 100) or 0 %}
+          <div class="progress-bar bg-warning" style="width: {{ percent }}%"></div>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-muted">Aucune donnée mensuelle disponible.</p>
+  {% endif %}
+
+  <hr>
+
+  <!-- Résumé global simple -->
+  <h3>Résumé global</h3>
+  {% if stats_categories %}
+    {% set total_depenses = stats_categories|sum(attribute='total') %}
+    <p>Catégorie la plus dépensière : <strong>{{ stats_categories[0].categorie }}</strong> ({{ "%.2f"|format(stats_categories[0].total) }} €)</p>
+    <p>Nombre de catégories : <strong>{{ stats_categories|length }}</strong></p>
+    <p>Dépense moyenne par catégorie : <strong>{{ "%.2f"|format(total_depenses / stats_categories|length) }} €</strong></p>
+    <p>Total général : <strong>{{ "%.2f"|format(total_depenses) }} €</strong></p>
+  {% else %}
+    <p class="text-muted">Ajoutez des dépenses pour voir des statistiques ici.</p>
+  {% endif %}
+
+  <hr>
+
+  <!-- Boutons d’actions -->
+  <div class="text-center mt-4">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary me-2">Retour au Dashboard</a>
+    <a href="{{ url_for('liste_depenses') }}" class="btn btn-outline-danger me-2">Voir toutes les dépenses</a>
+    <a href="{{ url_for('ajouter_depense') }}" class="btn btn-danger">Ajouter une dépense</a>
+  </div>
+
+</div>
+{% endblock %}

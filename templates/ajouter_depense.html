@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Ajouter une Dépense - BudgetWise{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <!-- Carte principale -->
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-plus-circle"></i> Ajouter une Dépense
+                </h4>
+            </div>
+
+            <div class="card-body">
+                <!-- Formulaire de dépense -->
+                <form method="POST">
+
+                    <!-- Champ Montant -->
+                    <div class="mb-3">
+                        <label for="montant" class="form-label">
+                            <i class="bi bi-currency-euro"></i> Montant 
+                        </label>
+                        <div class="input-group">
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="montant" 
+                                   name="montant" 
+                                   step="0.01" 
+                                   min="0" 
+                                   required 
+                                   placeholder="Entrez le montant de votre dépense">
+                            <span class="input-group-text">€</span>
+                        </div>
+                        
+                    </div>
+
+                    <!-- Champ Date -->
+                    <div class="mb-3">
+                        <label for="date" class="form-label">
+                            <i class="bi bi-calendar"></i> Date 
+                        </label>
+                        <input type="date" 
+                               class="form-control" 
+                               id="date" 
+                               name="date" 
+                               required 
+                               value="{{ today }}" 
+                               placeholder="Date où vous avez effectué cette dépense">
+                        
+                    </div>
+
+                    <!-- Champ Description -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label">
+                            <i class="bi bi-card-text"></i> Description 
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="description" 
+                               name="description" 
+                               required 
+                               placeholder="Décrivez cette dépense...">
+                        
+                    </div>
+
+                    <!-- Champ Catégorie -->
+                    <div class="mb-3">
+                        <label for="categorie" class="form-label">
+                            <i class="bi bi-tag"></i> Catégorie 
+                        </label>
+                        <select class="form-select" id="categorie" name="categorie" required>
+                            <option value="">Choisissez une catégorie...</option>
+                            {% for categorie in categories %}
+                                <option value="{{ categorie }}">{{ categorie }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Dans quelle catégorie classer cette dépense ?</div>
+                    </div>
+
+                    <!-- Champ Tags  -->
+                    <div class="mb-3">
+                        <label for="tags" class="form-label">
+                            <i class="bi bi-tags"></i> Tags 
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="tags" 
+                               name="tags" 
+                               placeholder="Ex: Urgent, Récurrent, Plaisir...">
+                        <div class="form-text">Ajoutez des mots-clés séparés par des virgules</div>
+                    </div>
+
+                    <!-- Boutons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('liste_depenses') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Retour
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-check-circle"></i> Ajouter la Dépense
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        
+    </div>
+</div>
+{% endblock %}

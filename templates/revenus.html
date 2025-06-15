@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Mes Revenus{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+
+  <h1 class="mb-4 text-success">Mes Revenus</h1>
+
+  {% if revenus %}
+  <table class="table table-striped table-hover">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Source</th>
+        <th>Montant</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for revenu in revenus %}
+      <tr>
+        <td>{{ revenu.date.strftime('%d/%m/%Y') }}</td>
+        <td><strong>{{ revenu.description }}</strong></td>
+        <td><span class="badge bg-info">{{ revenu.source }}</span></td>
+        <td class="text-success fw-bold">+{{ "%.2f"|format(revenu.montant) }} €</td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary">Modifier</button>
+          <button class="btn btn-sm btn-outline-danger">Supprimer</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Résumé simple -->
+  <div class="mt-4">
+    <p><strong>Total revenus :</strong> {{ "%.2f"|format(revenus|sum(attribute='montant')) }} €</p>
+    <p><strong>Nombre de revenus :</strong> {{ revenus|length }}</p>
+  </div>
+
+  {% else %}
+  <p>Aucun revenu enregistré. Ajoutez-en un !</p>
+  {% endif %}
+
+</div>
+{% endblock %}

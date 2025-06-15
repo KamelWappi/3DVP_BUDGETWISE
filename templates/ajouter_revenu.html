@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Ajouter un revenu{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Ajouter un revenu</h2>
+    <form method="POST">
+        <!-- Montant -->
+        <div class="mb-3">
+            <label for="montant">Montant € </label>
+            <input type="number" 
+                   class="form-control" 
+                   id="montant" 
+                   name="montant" 
+                   step="0.01" 
+                   min="0" 
+                   required 
+                   placeholder="Le montant de votre revenu">
+        </div>
+
+        <!-- Date -->
+        <div class="mb-3">
+            <label for="date">Date </label>
+            <input type="date" 
+                   class="form-control" 
+                   id="date" 
+                   name="date" 
+                   required 
+                   value="{{ today }}">
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+            <label for="description">Description </label>
+            <input type="text" 
+                   class="form-control" 
+                   id="description" 
+                   name="description" 
+                   required 
+                   placeholder="Ex : salaire, prime...">
+        </div>
+
+        <!-- Source -->
+        <div class="mb-3">
+            <label for="source">Source </label>
+            <select class="form-select" id="source" name="source" required>
+                <option value="">Choisir une source</option>
+                <option value="Salaire">Salaire</option>
+                <option value="Freelance">Freelance</option>
+                <option value="Investissements">Investissements</option>
+                <option value="Vente">Vente</option>
+                <option value="Cadeau">Cadeau</option>
+                <option value="Remboursement">Remboursement</option>
+                <option value="Autre">Autre</option>
+            </select>
+        </div>
+
+        <!-- Boutons -->
+        <div class="d-flex justify-content-between">
+            <a href="{{ url_for('liste_revenus') }}" class="btn btn-outline-secondary">Retour</a>
+            <button type="submit" class="btn btn-success">Ajouter</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
