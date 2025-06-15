@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
-import psycopg2
-from psycopg2.extras import RealDictCursor
 import os
 from datetime import date
+
+import psycopg2
 from dotenv import load_dotenv
+from flask import Flask, flash, redirect, render_template, request, url_for
+from psycopg2.extras import RealDictCursor
 
 # Chargement des variables d'environnement depuis .env
 load_dotenv()
@@ -278,7 +279,7 @@ def ajouter_depense():
         date_depense = request.form["date"]
         description = request.form["description"]
         categorie = request.form["categorie"]
-        tags = request.form.get("tags", "")  
+        tags = request.form.get("tags", "")
 
         if not all([montant, date_depense, description, categorie]):
             flash("Tous les champs obligatoires doivent être remplis", "error")
