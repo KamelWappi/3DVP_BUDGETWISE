@@ -10,10 +10,11 @@ load_dotenv()
 
 # Création de l'application Flask
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'flask_secret')
+app.secret_key = os.environ.get("SECRET_KEY", "flask_secret")
 
 # Configuration de la base de données PostgreSQL
-DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://localhost/budgetwise')
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://localhost/budgetwise")
+
 
 def get_db_connection():
     """
@@ -27,6 +28,7 @@ def get_db_connection():
         print(f"Erreur de connexion à la base de données: {e}")
         return None
 
+
 def init_database():
     """
     Initialise la base de données en créant les tables nécessaires
@@ -34,12 +36,13 @@ def init_database():
     conn = get_db_connection()
     if conn is None:
         return
-    
+
     try:
         cur = conn.cursor()
-        
+
         # Création de la table des revenus
-        cur.execute('''
+        cur.execute(
+            """
             CREATE TABLE IF NOT EXISTS revenus (
                 id SERIAL PRIMARY KEY,
                 montant DECIMAL(10,2) NOT NULL,
@@ -48,10 +51,12 @@ def init_database():
                 source VARCHAR(100) NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        ''')
-        
+        """
+        )
+
         # Création de la table des dépenses
-        cur.execute('''
+        cur.execute(
+            """
             CREATE TABLE IF NOT EXISTS depenses (
                 id SERIAL PRIMARY KEY,
                 montant DECIMAL(10,2) NOT NULL,
@@ -61,10 +66,12 @@ def init_database():
                 tags VARCHAR(200),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        ''')
-        
+        """
+        )
+
         # Création de la table des budgets mensuels
-        cur.execute('''
+        cur.execute(
+            """
             CREATE TABLE IF NOT EXISTS budgets (
                 id SERIAL PRIMARY KEY,
                 mois INTEGER NOT NULL,
@@ -73,11 +80,12 @@ def init_database():
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(mois, annee)
             )
-        ''')
-        
+        """
+        )
+
         conn.commit()
         print("Base de données initialisée avec succès")
-        
+
     except Exception as e:
         print(f"Erreur lors de l'initialisation de la base de données: {e}")
         conn.rollback()
@@ -85,7 +93,8 @@ def init_database():
         cur.close()
         conn.close()
 
-@app.route('/')
+
+@app.route("/")
 def dashboard():
     """
     Page d'accueil - Dashboard principal
@@ -93,25 +102,26 @@ def dashboard():
     """
     conn = get_db_connection()
     if conn is None:
-        flash('Erreur de connexion à la base de données', 'error')
-        return render_template('error.html')
-    
+        flash("Erreur de connexion à la base de données", "error")
+        return render_template("error.html")
+
     try:
         cur = conn.cursor()
-        
+
         # Récupération du total des revenus
-        cur.execute('SELECT COALESCE(SUM(montant), 0) as total FROM revenus')
-        total_revenus = float(cur.fetchone()['total'])
-        
+        cur.execute("SELECT COALESCE(SUM(montant), 0) as total FROM revenus")
+        total_revenus = float(cur.fetchone()["total"])
+
         # Récupération du total des dépenses
-        cur.execute('SELECT COALESCE(SUM(montant), 0) as total FROM depenses')
-        total_depenses = float(cur.fetchone()['total'])
-        
+        cur.execute("SELECT COALESCE(SUM(montant), 0) as total FROM depenses")
+        total_depenses = float(cur.fetchone()["total"])
+
         # Calcul du solde
         solde = total_revenus - total_depenses
-        
+
         # Récupération des dernières transactions (5 plus récentes)
-        cur.execute('''
+        cur.execute(
+            """
             SELECT 'revenu' as type, montant, date, description, source as extra
             FROM revenus
             UNION ALL
@@ -119,196 +129,229 @@ def dashboard():
             FROM depenses
             ORDER BY date DESC
             LIMIT 5
-        ''')
+        """
+        )
         dernieres_transactions = cur.fetchall()
-        
+
         # Récupération des statistiques par catégorie
-        cur.execute('''
+        cur.execute(
+            """
             SELECT categorie, SUM(montant) as total
             FROM depenses
             GROUP BY categorie
             ORDER BY total DESC
-        ''')
+        """
+        )
         stats_categories = cur.fetchall()
-        
-        return render_template('dashboard.html',
-                               total_revenus=total_revenus,
-                               total_depenses=total_depenses,
-                               solde=solde,
-                               dernieres_transactions=dernieres_transactions,
-                               stats_categories=stats_categories)
-    
+
+        return render_template(
+            "dashboard.html",
+            total_revenus=total_revenus,
+            total_depenses=total_depenses,
+            solde=solde,
+            dernieres_transactions=dernieres_transactions,
+            stats_categories=stats_categories,
+        )
+
     except Exception as e:
-        flash(f'Erreur lors du chargement du dashboard: {e}', 'error')
-        return render_template('error.html')
+        flash(f"Erreur lors du chargement du dashboard: {e}", "error")
+        return render_template("error.html")
     finally:
         cur.close()
         conn.close()
 
-@app.route('/revenus')
+
+@app.route("/revenus")
 def liste_revenus():
     """
     Affiche la liste de tous les revenus
     """
     conn = get_db_connection()
     if conn is None:
-        flash('Erreur de connexion à la base de données', 'error')
-        return render_template('error.html')
-    
+        flash("Erreur de connexion à la base de données", "error")
+        return render_template("error.html")
+
     try:
         cur = conn.cursor()
-        cur.execute('SELECT * FROM revenus ORDER BY date DESC')
+        cur.execute("SELECT * FROM revenus ORDER BY date DESC")
         revenus = cur.fetchall()
-        
-        return render_template('revenus.html', revenus=revenus)
-    
+
+        return render_template("revenus.html", revenus=revenus)
+
     except Exception as e:
-        flash(f'Erreur lors du chargement des revenus: {e}', 'error')
-        return render_template('error.html')
+        flash(f"Erreur lors du chargement des revenus: {e}", "error")
+        return render_template("error.html")
     finally:
         cur.close()
         conn.close()
 
-@app.route('/depenses')
+
+@app.route("/depenses")
 def liste_depenses():
     """
     Affiche la liste de toutes les dépenses
     """
     conn = get_db_connection()
     if conn is None:
-        flash('Erreur de connexion à la base de données', 'error')
-        return render_template('error.html')
-    
+        flash("Erreur de connexion à la base de données", "error")
+        return render_template("error.html")
+
     try:
         cur = conn.cursor()
-        cur.execute('SELECT * FROM depenses ORDER BY date DESC')
+        cur.execute("SELECT * FROM depenses ORDER BY date DESC")
         depenses = cur.fetchall()
-        
-        return render_template('depenses.html', depenses=depenses)
-    
+
+        return render_template("depenses.html", depenses=depenses)
+
     except Exception as e:
-        flash(f'Erreur lors du chargement des dépenses: {e}', 'error')
-        return render_template('error.html')
+        flash(f"Erreur lors du chargement des dépenses: {e}", "error")
+        return render_template("error.html")
     finally:
         cur.close()
         conn.close()
 
-@app.route('/ajouter-revenu', methods=['GET', 'POST'])
+
+@app.route("/ajouter-revenu", methods=["GET", "POST"])
 def ajouter_revenu():
     """
     Formulaire pour ajouter un nouveau revenu
     """
-    if request.method == 'POST':
-        montant = request.form['montant']
-        date_revenu = request.form['date']
-        description = request.form['description']
-        source = request.form['source']
+    if request.method == "POST":
+        montant = request.form["montant"]
+        date_revenu = request.form["date"]
+        description = request.form["description"]
+        source = request.form["source"]
 
         # Validation simple des données
         if not all([montant, date_revenu, description, source]):
-            flash('Tous les champs sont obligatoires', 'error')
-            return render_template('ajouter_revenu.html')
-        
+            flash("Tous les champs sont obligatoires", "error")
+            return render_template("ajouter_revenu.html")
+
         conn = get_db_connection()
         if conn is None:
-            flash('Erreur de connexion à la base de données', 'error')
-            return render_template('error.html')
-        
+            flash("Erreur de connexion à la base de données", "error")
+            return render_template("error.html")
+
         try:
             cur = conn.cursor()
-            cur.execute('''
+            cur.execute(
+                """
                 INSERT INTO revenus (montant, date, description, source)
                 VALUES (%s, %s, %s, %s)
-            ''', (montant, date_revenu, description, source))
-            
+            """,
+                (montant, date_revenu, description, source),
+            )
+
             conn.commit()
-            flash('Revenu ajouté avec succès!', 'success')
-            return redirect(url_for('liste_revenus'))
-        
+            flash("Revenu ajouté avec succès!", "success")
+            return redirect(url_for("liste_revenus"))
+
         except Exception as e:
-            flash(f'Erreur lors de l\'ajout du revenu: {e}', 'error')
+            flash(f"Erreur lors de l'ajout du revenu: {e}", "error")
             conn.rollback()
         finally:
             cur.close()
             conn.close()
 
-    
     today = date.today().isoformat()
-    return render_template('ajouter_revenu.html', today=today)
+    return render_template("ajouter_revenu.html", today=today)
 
-@app.route('/ajouter-depense', methods=['GET', 'POST'])
+
+@app.route("/ajouter-depense", methods=["GET", "POST"])
 def ajouter_depense():
     """
     Formulaire pour ajouter une nouvelle dépense
     """
-    if request.method == 'POST':
-        montant = request.form['montant']
-        date_depense = request.form['date']
-        description = request.form['description']
-        categorie = request.form['categorie']
-        tags = request.form.get('tags', '')  # Optionnel
-        
+    categories = [
+        "Alimentation",
+        "Transport",
+        "Logement",
+        "Santé",
+        "Loisirs",
+        "Vêtements",
+        "Éducation",
+        "Autre",
+    ]
+
+    if request.method == "POST":
+        montant = request.form["montant"]
+        date_depense = request.form["date"]
+        description = request.form["description"]
+        categorie = request.form["categorie"]
+        tags = request.form.get("tags", "")  
+
         if not all([montant, date_depense, description, categorie]):
-            flash('Tous les champs obligatoires doivent être remplis', 'error')
-            return render_template('ajouter_depense.html', categories=categories)
-        
+            flash("Tous les champs obligatoires doivent être remplis", "error")
+            return render_template("ajouter_depense.html", categories=categories)
+
         conn = get_db_connection()
         if conn is None:
-            flash('Erreur de connexion à la base de données', 'error')
-            return render_template('error.html')
-        
+            flash("Erreur de connexion à la base de données", "error")
+            return render_template("error.html")
+
         try:
             cur = conn.cursor()
-            cur.execute('''
+            cur.execute(
+                """
                 INSERT INTO depenses (montant, date, description, categorie, tags)
                 VALUES (%s, %s, %s, %s, %s)
-            ''', (montant, date_depense, description, categorie, tags))
-            
+            """,
+                (montant, date_depense, description, categorie, tags),
+            )
+
             conn.commit()
-            flash('Dépense ajoutée avec succès!', 'success')
-            return redirect(url_for('liste_depenses'))
-        
+            flash("Dépense ajoutée avec succès!", "success")
+            return redirect(url_for("liste_depenses"))
+
         except Exception as e:
-            flash(f'Erreur lors de l\'ajout de la dépense: {e}', 'error')
+            flash(f"Erreur lors de l'ajout de la dépense: {e}", "error")
             conn.rollback()
         finally:
             cur.close()
             conn.close()
-    
-    
+
     categories = [
-        'Alimentation', 'Transport', 'Logement', 'Santé',
-        'Loisirs', 'Vêtements', 'Éducation', 'Autre'
+        "Alimentation",
+        "Transport",
+        "Logement",
+        "Santé",
+        "Loisirs",
+        "Vêtements",
+        "Éducation",
+        "Autre",
     ]
 
     today = date.today().isoformat()
-    return render_template('ajouter_depense.html', categories=categories, today=today)
+    return render_template("ajouter_depense.html", categories=categories, today=today)
 
 
-@app.route('/statistiques')
+@app.route("/statistiques")
 def statistiques():
     """
     Page des statistiques détaillées
     """
     conn = get_db_connection()
     if conn is None:
-        flash('Erreur de connexion à la base de données', 'error')
-        return render_template('error.html')
-    
+        flash("Erreur de connexion à la base de données", "error")
+        return render_template("error.html")
+
     try:
         cur = conn.cursor()
-        
+
         # Statistiques par catégorie
-        cur.execute('''
+        cur.execute(
+            """
             SELECT categorie, COUNT(*) as nombre, SUM(montant) as total
             FROM depenses
             GROUP BY categorie
             ORDER BY total DESC
-        ''')
+        """
+        )
         stats_categories = cur.fetchall()
-        
+
         # Statistiques par mois
-        cur.execute('''
+        cur.execute(
+            """
             SELECT 
                 EXTRACT(YEAR FROM date) as annee,
                 EXTRACT(MONTH FROM date) as mois,
@@ -316,33 +359,28 @@ def statistiques():
             FROM depenses
             GROUP BY annee, mois
             ORDER BY annee DESC, mois DESC
-        ''')
+        """
+        )
         stats_mois = cur.fetchall()
-        
-        return render_template('statistiques.html',
-                               stats_categories=stats_categories,
-                               stats_mois=stats_mois)
-    
+
+        return render_template(
+            "statistiques.html",
+            stats_categories=stats_categories,
+            stats_mois=stats_mois,
+        )
+
     except Exception as e:
-        flash(f'Erreur lors du chargement des statistiques: {e}', 'error')
-        return render_template('error.html')
+        flash(f"Erreur lors du chargement des statistiques: {e}", "error")
+        return render_template("error.html")
     finally:
         cur.close()
         conn.close()
 
 
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Initialisation de la base de données au démarrage
     init_database()
-    
+
     # Lancement de l'application
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
-
-
-
-
-
-
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
