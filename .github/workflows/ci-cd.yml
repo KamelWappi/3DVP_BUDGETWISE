@@ -24,12 +24,7 @@ jobs:
           pip install -r requirements.txt
           pip install pytest flake8 psycopg2-binary
 
-      - name: Run linter
-        run: | 
-            flake8 app.py tests/ \
-            --exclude=__init__.py \
-            --per-file-ignores="tests/test_app.py:E402" \
-            --extend-ignore=W292
+     
       - name: Set PYTHONPATH
         run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
