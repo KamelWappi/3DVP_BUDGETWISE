@@ -18,6 +18,9 @@ BudgetWise est une application web simple et intuitive pour gérer votre budget 
 - **Base de données** : PostgreSQL
 - **Frontend** : HTML5, CSS3, Bootstrap 5
 
+## Lien github
+
+https://github.com/KamelWappi/3DVP_BUDGETWISE
 
 ##  Prérequis
 
